@@ -1,0 +1,15 @@
+[package]
+name = "rustler_example"
+version = "0.1.0"
+authors = []
+edition = "2021"
+
+[lib]
+name = "rustler_example"
+path = "src/lib.rs"
+crate-type = ["cdylib"]
+
+[dependencies]
+lazy_static = "1.5.0"
+libloading = "0.8.6"
+rustler = "0.29.1"
