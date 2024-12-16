@@ -1,5 +1,5 @@
-defmodule RustlerExample do
-  use Rustler, otp_app: :rustler_example, crate: "rustler_example"
+defmodule CRUD_JT do
+  use Rustler, otp_app: :crud_jt, crate: "crud_jt"
 
   # Це "заглушка", яка буде замінена на Rust-код
   def encrypted_key(_key), do: :erlang.nif_error(:nif_not_loaded)
@@ -13,7 +13,7 @@ defmodule RustlerExample do
   def __update(token, data, size, ttl, silence_read), do: :erlang.nif_error(:nif_not_loaded)
   def __delete(token), do: :erlang.nif_error(:nif_not_loaded)
 
-  def create(hash, ttl, silence_read) do
+  def create(hash, ttl \\ -1, silence_read \\ -1) do
     {:ok, packed} = Msgpax.pack(hash)
     bynary_data = IO.iodata_to_binary(packed)
     size = byte_size(bynary_data)
@@ -31,7 +31,7 @@ defmodule RustlerExample do
     end
   end
 
-  def update(token, hash, ttl, silence_read) do
+  def update(token, hash, ttl \\ -1, silence_read \\ -1) do
     {:ok, packed} = Msgpax.pack(hash)
     bynary_data = IO.iodata_to_binary(packed)
     size = byte_size(bynary_data)

@@ -1,14 +1,14 @@
-defmodule RustlerExample.MixProject do
+defmodule CRUD_JT.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :rustler_example,
+      app: :crud_jt,
       version: "0.1.0",
       elixir: "~> 1.12",
       start_permanent: Mix.env() == :prod,
       compilers: [:rustler] ++ Mix.compilers(),
-      rustler_crates: [rustler_example: []],
+      rustler_crates: [crud_jt: []],
       deps: deps()
     ]
   end

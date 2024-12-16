@@ -1,11 +1,11 @@
 [package]
-name = "rustler_example"
+name = "crud_jt"
 version = "0.1.0"
 authors = []
 edition = "2021"
 
 [lib]
-name = "rustler_example"
+name = "crud_jt"
 path = "src/lib.rs"
 crate-type = ["cdylib"]
 

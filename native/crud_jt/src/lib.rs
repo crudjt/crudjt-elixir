@@ -151,4 +151,4 @@ fn __delete(token: String) -> NifResult<bool> {
     Ok(bool)
 }
 
-rustler::init!("Elixir.RustlerExample", [encrypted_key, __create, __read, __update, __delete]);
+rustler::init!("Elixir.CRUD_JT", [encrypted_key, __create, __read, __update, __delete]);
