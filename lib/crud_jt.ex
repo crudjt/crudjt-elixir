@@ -18,16 +18,27 @@ defmodule CRUD_JT do
     bynary_data = IO.iodata_to_binary(packed)
     size = byte_size(bynary_data)
 
-    __create(bynary_data, size, ttl, silence_read)
+    token = __create(bynary_data, size, ttl, silence_read)
+    #Cachex.put(:my_cache, token, hash)
+    LRUCache.insert(token, hash, ttl, silence_read)
+    token
   end
 
   def read(token) do
-    str = __read(token)
+    #{:ok, output} = Cachex.get(:my_cache, token)
+    output = LRUCache.get(token, &__read/1)
 
-    if str == "" do
-      nil
+    if output do
+      output
     else
-      Jason.decode!(str)
+      str = __read(token)
+
+      if str == "" do
+        nil
+      else
+        hash = Jason.decode!(str)
+        hash
+      end
     end
   end
 
@@ -36,10 +47,15 @@ defmodule CRUD_JT do
     bynary_data = IO.iodata_to_binary(packed)
     size = byte_size(bynary_data)
 
-    __update(token, bynary_data, size, ttl, silence_read)
+    result = __update(token, bynary_data, size, ttl, silence_read)
+    if result do
+      LRUCache.insert(token, hash, ttl, silence_read)
+    end
+    result
   end
 
   def delete(token) do
+    LRUCache.delete(token)
     __delete(token)
   end
 end

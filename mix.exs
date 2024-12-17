@@ -15,14 +15,16 @@ defmodule CRUD_JT.MixProject do
 
   def application do
     [
-      extra_applications: [:logger]
+      extra_applications: [:logger],
+      mod: {CRUD_JT.Application, []} # Вказуємо головний модуль
     ]
   end
 
   defp deps do
     [
       {:rustler, "~> 0.29.0"},
-      {:msgpax, "~> 2.4.0"}
+      {:msgpax, "~> 2.4.0"},
+      {:cachex, "~> 4.0"}
     ]
   end
 end
