@@ -137,10 +137,22 @@ IO.puts("when caches after read from file system")
 limit_for_cache = 2
 previous_values = []
 
+{time, previous_values} = :timer.tc(fn ->
+  Enum.reduce(1..requests, [], fn _, acc ->
+    [CRUD_JT.create(data) | acc]
+  end)
+end)
+
+for _ <- 1..requests do
+  CRUD_JT.create(data)
+end
+
+previous_values = Enum.reverse(previous_values)
+
 for _ <- 1..limit_for_cache do
-  {time, previous_values} = :timer.tc(fn ->
-    Enum.reduce(1..requests, [], fn _, acc ->
-      [CRUD_JT.create(data) | acc]
+  {time, _} = :timer.tc(fn ->
+    Enum.each(previous_values, fn token ->
+      CRUD_JT.read(token)
     end)
   end)
   IO.puts("#{time / 1_000_000} seconds")
