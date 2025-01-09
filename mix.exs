@@ -23,8 +23,7 @@ defmodule CRUD_JT.MixProject do
   defp deps do
     [
       {:rustler, "~> 0.29.0"},
-      {:msgpax, "~> 2.4.0"},
-      {:cachex, "~> 4.0"}
+      {:msgpax, "~> 2.4.0"}
     ]
   end
 end

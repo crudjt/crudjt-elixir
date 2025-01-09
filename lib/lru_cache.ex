@@ -1,127 +1,80 @@
 defmodule LRUCache do
-  @moduledoc """
-  A module to emulate LRU cache behavior using Cachex.
-  """
+  alias :persistent_term, as: PersistentTerm
+  alias :ets, as: Ets
 
-  alias Cachex
+  @capacity_key {__MODULE__, :capacity}
+  @cache_table __MODULE__
+  @ttl_table :"#{__MODULE__}TTL"
 
-  # Get a value from the cache, updating as necessary
-  def get(key, w_func) when is_function(w_func, 1) do
-    case Cachex.get(:my_cache, key) do
-      {:ok, nil} ->
-        nil
+  @spec init_(capacity :: integer) :: any
+  def init_(capacity) do
+    PersistentTerm.put(@capacity_key, capacity)
 
-      {:ok, cached_value} ->
-        # Re-insert to update LRU
-        Cachex.put(:my_cache, key, cached_value)
+    if Enum.member?(Ets.all(), @cache_table) == false do
+      Ets.new(@cache_table, [:set, :public, :named_table])
+      Ets.new(@ttl_table, [:ordered_set, :public, :named_table])
+    else
+      Ets.delete_all_objects(@cache_table)
+      Ets.delete_all_objects(@ttl_table)
+    end
+    :ok
+  end
 
-        output = %{}
-        output =
-          case get_ttl(cached_value) do
-            nil -> output
-            time_remaining when time_remaining > 0 ->
-              Map.put(output, "metadata", %{"ttl" => time_remaining})
-
-            _ ->
-              Cachex.del(:my_cache, key)
-              nil
-          end
-
-        # Якщо silence_read є, зменшуємо його на 1 і оновлюємо кеш
-        output =
-          case get_silence_read(cached_value) do
-            nil -> output
-            remaining when remaining > 0 ->
-              # Віднімаємо 1 від silence_read
-              updated_value = decrement_silence_read(cached_value)
-              Cachex.put(:my_cache, key, updated_value)
-
-              Map.update(output, "metadata", %{"silence_read" => remaining - 1}, fn metadata ->
-                Map.put(metadata, "silence_read", remaining - 1)
-              end)
-
-            _ ->
-              Cachex.del(:my_cache, key)
-              nil
-          end
-
-        if get_silence_read(cached_value) do
-          w_func.(key)
-        end
-
-        if is_map(output) do
-          Map.put(output, "data", cached_value["data"])
-        else
-          nil
-        end
-
-      _ ->
-        nil
+  @spec get(key :: integer) :: integer
+  def get(key) do
+    with {key, value} <- extract(key) do
+      insert(key, value)
+      value
     end
   end
 
-  # Insert a value into the cache
-  def insert(key, value, ttl, silence_read) do
-    hash = %{"data" => value}
-
-    hash =
-      if ttl > 0 do
-        Map.put(hash, "metadata", %{"ttl" => current_time() + ttl})
-      else
-        hash
-      end
-
-    hash =
-      if silence_read > 0 do
-        Map.update(hash, "metadata", %{"silence_read" => silence_read}, fn metadata ->
-          Map.put(metadata, "silence_read", silence_read)
-        end)
-      else
-        hash
-      end
-
-    Cachex.put(:my_cache, key, hash)
+  @spec put(key :: integer, value :: integer) :: any
+  def put(key, value) do
+    extract(key)
+    insert(key, value)
+    evict()
   end
 
-  # Forcefully insert a value into the cache
-  def force_insert(key, value) do
-    Cachex.put(:my_cache, key, value)
+  @spec del(key :: integer) :: :ok | :error
+  def del(key) do
+    case Ets.lookup(@cache_table, key) do
+      [{_, uniq, _value}] ->
+        # Видаляємо записи з обох таблиць
+        Ets.delete(@cache_table, key)
+        Ets.delete(@ttl_table, uniq)
+        :ok
+
+      [] ->
+        :error
+    end
   end
 
-  # Delete a value from the cache
-  def delete(key) do
-    Cachex.del(:my_cache, key)
+
+  defp insert(key, value, uniq \\ uniq()) do
+    Ets.insert(@cache_table, {key, uniq, value})
+    Ets.insert(@ttl_table, {uniq, key})
   end
 
-  # Helper: Get `ttl` expiration time
-  defp get_ttl(cached_value) do
-    cached_value
-    |> Map.get("metadata", %{})
-    |> Map.get("ttl")
-    |> then(fn
-      nil -> nil
-      expiration -> expiration - current_time()
-    end)
+  defp evict() do
+    if Ets.info(@cache_table, :size) > PersistentTerm.get(@capacity_key) do
+      uniq = Ets.first(@ttl_table)
+      [{_, key}] = Ets.lookup(@ttl_table, uniq)
+      Ets.delete(@ttl_table, uniq)
+      Ets.delete(@cache_table, key)
+    end
   end
 
-  # Helper: Get `silence_read` count
-  defp get_silence_read(cached_value) do
-    cached_value
-    |> Map.get("metadata", %{})
-    |> Map.get("silence_read")
+  defp extract(key) do
+    case Ets.lookup(@cache_table, key) do
+      [{_,uniq, value}] ->
+        Ets.delete(@ttl_table, uniq)
+        {key, value}
+      [] ->
+        -1
+    end
   end
 
-  # Helper: Decrement `silence_read` count
-  defp decrement_silence_read(cached_value) do
-    cached_value
-    |> Map.update!("metadata", fn metadata ->
-      Map.update!(metadata, "silence_read", &(&1 - 1))
-    end)
-  end
-
-  # Helper: Get current time in seconds
-  defp current_time do
-    DateTime.utc_now()
-    |> DateTime.to_unix(:second)
+  defp uniq do
+    :erlang.unique_integer([:monotonic])
   end
 end

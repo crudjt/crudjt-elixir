@@ -20,13 +20,14 @@ defmodule CRUD_JT do
 
     token = __create(bynary_data, size, ttl, silence_read)
     #Cachex.put(:my_cache, token, hash)
-    LRUCache.insert(token, hash, ttl, silence_read)
+    #LRUCache.put(token, hash)
+    Cache.insert(token, hash, ttl, silence_read)
     token
   end
 
   def read(token) do
     #{:ok, output} = Cachex.get(:my_cache, token)
-    output = LRUCache.get(token, &__read/1)
+    output = Cache.get(token, &__read/1)
 
     if output do
       output
@@ -37,6 +38,7 @@ defmodule CRUD_JT do
         nil
       else
         hash = Jason.decode!(str)
+        Cache.force_insert(token, hash)
         hash
       end
     end
@@ -49,13 +51,13 @@ defmodule CRUD_JT do
 
     result = __update(token, bynary_data, size, ttl, silence_read)
     if result do
-      LRUCache.insert(token, hash, ttl, silence_read)
+      Cache.insert(token, hash, ttl, silence_read)
     end
     result
   end
 
   def delete(token) do
-    LRUCache.delete(token)
+    Cache.delete(token)
     __delete(token)
   end
 end
