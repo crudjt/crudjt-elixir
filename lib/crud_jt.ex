@@ -13,7 +13,12 @@ defmodule CRUD_JT do
   def __update(token, data, size, ttl, silence_read), do: :erlang.nif_error(:nif_not_loaded)
   def __delete(token), do: :erlang.nif_error(:nif_not_loaded)
 
-  def create(hash, ttl \\ -1, silence_read \\ -1) do
+  def create(hash, ttl \\ nil, silence_read \\ nil) do
+    Validation.validate_insertion!(hash, ttl, silence_read)
+
+    ttl = ttl || -1
+    silence_read = silence_read || -1
+
     {:ok, packed} = Msgpax.pack(hash)
     bynary_data = IO.iodata_to_binary(packed)
     size = byte_size(bynary_data)
@@ -26,6 +31,8 @@ defmodule CRUD_JT do
   end
 
   def read(token) do
+    Validation.validate_token!(token)
+
     #{:ok, output} = Cachex.get(:my_cache, token)
     output = Cache.get(token, &__read/1)
 
@@ -44,7 +51,13 @@ defmodule CRUD_JT do
     end
   end
 
-  def update(token, hash, ttl \\ -1, silence_read \\ -1) do
+  def update(token, hash, ttl \\ nil, silence_read \\ nil) do
+    Validation.validate_token!(token)
+    Validation.validate_insertion!(hash, ttl, silence_read)
+
+    ttl = ttl || -1
+    silence_read = silence_read || -1
+
     {:ok, packed} = Msgpax.pack(hash)
     bynary_data = IO.iodata_to_binary(packed)
     size = byte_size(bynary_data)
@@ -57,6 +70,8 @@ defmodule CRUD_JT do
   end
 
   def delete(token) do
+    Validation.validate_token!(token)
+
     Cache.delete(token)
     __delete(token)
   end

@@ -48,7 +48,7 @@ IO.puts("Checking silence_read...")
 
 data = %{"user_id" => 42, "role" => 11}
 silence_read = 6
-token_with_silence_read = CRUD_JT.create(data, -1, silence_read)
+token_with_silence_read = CRUD_JT.create(data, nil, silence_read)
 
 for i <- 1..silence_read do
   expected_result = %{"metadata" => %{"silence_read" => silence_read - i}, "data" => data}
