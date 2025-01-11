@@ -9,8 +9,8 @@ jobs:
         include:
           - os: ubuntu-latest
             arch: x86_64
-          - os: macos-latest
-            arch: aarch64
+          #- os: macos-latest
+            #arch: aarch64
           - os: windows-latest
             arch: x86_64
 
