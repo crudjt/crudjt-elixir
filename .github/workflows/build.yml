@@ -34,4 +34,7 @@ jobs:
       # Запуск тестів
       - name: Run tests
         working-directory: ./test_crud_jt_package
-        run: mix test
+        run: |
+          mix deps.get
+          mix compile
+          mix test
