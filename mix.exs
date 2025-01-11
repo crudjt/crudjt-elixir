@@ -9,8 +9,26 @@ defmodule CRUD_JT.MixProject do
       start_permanent: Mix.env() == :prod,
       compilers: [:rustler] ++ Mix.compilers(),
       rustler_crates: [crud_jt: []],
-      deps: deps()
+      deps: deps(),
+
+      description: description(),
+      package: package()
     ]
+  end
+
+  defp package do
+    [
+      files: ["lib", "native", "priv", "mix.exs", "README*"],
+      maintainers: ["Vlad Akymov"],
+      licenses: ["MIT"],
+      links: %{"GitHub" => "https://github.com"}
+    ]
+  end
+
+  defp description do
+    """
+    Bla bla bla
+    """
   end
 
   def application do
@@ -23,7 +41,7 @@ defmodule CRUD_JT.MixProject do
   defp deps do
     [
       {:rustler, "~> 0.29.0"},
-      {:msgpax, "~> 2.4.0"}
+      {:msgpax, "~> 2.4.0"},
     ]
   end
 end
