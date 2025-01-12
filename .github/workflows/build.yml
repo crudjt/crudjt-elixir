@@ -34,6 +34,8 @@ jobs:
         run: |
           brew update
           brew install elixir || brew upgrade elixir
+          mix local.hex --force
+          mix local.rebar --force
 
       # Встановлення залежностей
       - name: Install dependencies
