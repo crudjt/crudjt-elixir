@@ -7,12 +7,12 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: ubuntu-latest
-            arch: x86_64
-          #- os: macos-latest
-            #arch: aarch64
-          - os: windows-latest
-            arch: x86_64
+          #- os: ubuntu-latest
+            #arch: x86_64
+          - os: macos-latest
+            arch: aarch64
+          #- os: windows-latest
+            #arch: x86_64
 
     runs-on: ${{ matrix.os }}
 
@@ -20,12 +20,20 @@ jobs:
       # Крок для отримання коду з репозиторію
       - uses: actions/checkout@v4
 
-      # Встановлення Elixir та Erlang/OTP
-      - name: Set up Elixir
+
+      # Налаштування середовища залежно від ОС
+      - name: Set up Elixir (Ubuntu/Windows)
+        if: ${{ matrix.os == 'ubuntu-latest' || matrix.os == 'windows-latest' }}
         uses: erlef/setup-beam@v1
         with:
           elixir-version: '1.15' # Вкажіть потрібну версію Elixir
-          otp-version: '26.0'    # Вкажіть відповідну версію Erlang/OTP
+          otp-version: '26.0'    # Вкажіть відповідну версію OTP
+
+      - name: Set up Elixir (macOS)
+        if: ${{ matrix.os == 'macos-latest' }}
+        run: |
+          brew update
+          brew install elixir || brew upgrade elixir
 
       # Встановлення залежностей
       - name: Install dependencies
