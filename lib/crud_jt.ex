@@ -1,8 +1,14 @@
 defmodule CRUD_JT do
   use Rustler, otp_app: :crud_jt, crate: "crud_jt"
 
+  defmodule Config do
+    defstruct encrypted_key: nil, store_jt_path: nil
+  end
+
   # Це "заглушка", яка буде замінена на Rust-код
-  def encrypted_key(_key), do: :erlang.nif_error(:nif_not_loaded)
+  def encrypted_key_config(_key), do: :erlang.nif_error(:nif_not_loaded)
+
+  def store_jt_path_config(_path), do: :erlang.nif_error(:nif_not_loaded)
 
   # Проксі-функція для `__create`
   def __create(data_pointer, size, ttl, silence_read) do
@@ -41,7 +47,7 @@ defmodule CRUD_JT do
     else
       str = __read(token)
 
-      if str == "" do
+      if str == nil do
         nil
       else
         hash = Jason.decode!(str)
@@ -74,5 +80,11 @@ defmodule CRUD_JT do
 
     Cache.delete(token)
     __delete(token)
+  end
+
+  def set_config(%CRUD_JT.Config{encrypted_key: y, store_jt_path: p}) do
+    if p, do: store_jt_path_config(p)
+    encrypted_key_config(y)
+    :ok
   end
 end
