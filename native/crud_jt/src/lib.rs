@@ -67,19 +67,26 @@ lazy_static! {
     };
 }
 
-fn _encrypted_key(key: *const c_char) -> Result<u32, Box<dyn std::error::Error>> {
-    unsafe {
-        // let lib = libloading::Library::new("/path/to/liblibrary.so")?;
-        let func: libloading::Symbol<unsafe extern fn(*const c_char) -> u32> = LIB.get(b"__encrypted_key")?;
-        Ok(func(key))
-    }
-}
+// fn _encrypted_key(key: *const c_char) -> Result<u32, Box<dyn std::error::Error>> {
+//     unsafe {
+//         // let lib = libloading::Library::new("/path/to/liblibrary.so")?;
+//         let func: libloading::Symbol<unsafe extern fn(*const c_char) -> u32> = LIB.get(b"__encrypted_key")?;
+//         Ok(func(key))
+//     }
+// }
+//
+// fn _store_jt_path(key: *const c_char) -> Result<u32, Box<dyn std::error::Error>> {
+//     unsafe {
+//         // let lib = libloading::Library::new("/path/to/liblibrary.so")?;
+//         let func: libloading::Symbol<unsafe extern fn(*const c_char) -> u32> = LIB.get(b"__store_jt_path")?;
+//         Ok(func(key))
+//     }
+// }
 
-fn _store_jt_path(key: *const c_char) -> Result<u32, Box<dyn std::error::Error>> {
+fn _start_store_jt(key: *const c_char, path: *const c_char) -> Result<*const c_char, Box<dyn std::error::Error>> {
     unsafe {
-        // let lib = libloading::Library::new("/path/to/liblibrary.so")?;
-        let func: libloading::Symbol<unsafe extern fn(*const c_char) -> u32> = LIB.get(b"__store_jt_path")?;
-        Ok(func(key))
+        let func: libloading::Symbol<unsafe extern fn(*const c_char, *const c_char) -> *const c_char> = LIB.get(b"start_store_jt")?;
+        Ok(func(key, path))
     }
 }
 
@@ -114,16 +121,35 @@ fn _delete(token: *const c_char) -> Result<*const c_int, Box<dyn std::error::Err
 
 /////////////////////////////////////////////////////
 
-#[rustler::nif]
-fn encrypted_key_config(key: String) {
-    let c_key = CString::new(key).expect("Failed to create CString");
-    _encrypted_key(c_key.as_ptr()).unwrap();
-}
+// #[rustler::nif]
+// fn encrypted_key_config(key: String) {
+//     let c_key = CString::new(key).expect("Failed to create CString");
+//     _encrypted_key(c_key.as_ptr()).unwrap();
+// }
+//
+// #[rustler::nif]
+// fn store_jt_path_config(path: String) {
+//     let c_path = CString::new(path).expect("Failed to create CString");
+//     _store_jt_path(c_path.as_ptr()).unwrap();
+// }
 
 #[rustler::nif]
-fn store_jt_path_config(path: String) {
-    let c_path = CString::new(path).expect("Failed to create CString");
-    _store_jt_path(c_path.as_ptr()).unwrap();
+fn start_store_jt_config(key: String, path: Option<String>) -> NifResult<String> {
+    let c_key = CString::new(key).expect("Failed to create CString");
+    let c_path = match path {
+        Some(p) => Some(CString::new(p).expect("Failed to create CString")),
+        None => None,
+    };
+
+    let c_path_ptr = c_path
+        .as_ref()
+        .map(|s| s.as_ptr())
+        .unwrap_or(std::ptr::null());
+
+    let result = _start_store_jt(c_key.as_ptr(), c_path_ptr).unwrap();
+    let result_str = unsafe { CStr::from_ptr(result).to_string_lossy().into_owned() };
+
+    Ok(result_str)
 }
 
 #[rustler::nif]
@@ -169,4 +195,4 @@ fn __delete(token: String) -> NifResult<bool> {
     Ok(bool)
 }
 
-rustler::init!("Elixir.CRUD_JT", [encrypted_key_config, store_jt_path_config, __create, __read, __update, __delete]);
+rustler::init!("Elixir.CRUD_JT", [start_store_jt_config, __create, __read, __update, __delete]);
