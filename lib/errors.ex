@@ -1,8 +1,7 @@
 defmodule Errors do
-  alias MyLib.Errors.InternalError
-
   @errors %{
-    "XX000" => InternalError
+    "XX000" => InternalError,
+    "DE000" => DonateException
   }
 
   def errors, do: @errors

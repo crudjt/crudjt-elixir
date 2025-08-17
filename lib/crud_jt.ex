@@ -143,7 +143,7 @@ defmodule CRUD_JT do
 
   @spec start(Config.t()) :: {:ok, Config.t()} | {:error, String.t()}
   def start(%Config{encrypted_key: nil}), do:
-    {:error, Validation.error_message(Validation.error_qwerty_not_set())}
+    {:error, Validation.error_message(Validation.error_encrypted_key_not_set())}
 
   def start(%Config{} = cfg) do
     # виклик NIF, який має повернути JSON
@@ -156,7 +156,7 @@ defmodule CRUD_JT do
       else
         case Errors.errors()[res["code"]] do
           nil ->
-            {:error, "Unknown error code #{res["code"]}: #{res["error_message"]}"}
+            raise "Unknown error code #{res["code"]}"
 
           err_mod ->
             raise err_mod, message: res["error_message"]
