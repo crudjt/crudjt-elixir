@@ -1,7 +1,7 @@
 defmodule Errors do
   @errors %{
-    "XX000" => InternalError,
-    "DE000" => DonateException
+    "XX000" => Errors.InternalError,
+    "DE000" => Errors.DonateException
   }
 
   def errors, do: @errors

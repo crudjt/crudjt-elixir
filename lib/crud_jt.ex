@@ -79,7 +79,7 @@ defmodule CRUD_JT do
 
             unless result["ok"] do
               error_module =
-                Map.get(Errors.ERRORS, result["code"], Errors.InternalError)
+                Map.get(Errors.errors, result["code"], Errors.InternalError)
 
               raise error_module, message: result["error_message"] || "Unknown error"
             end
