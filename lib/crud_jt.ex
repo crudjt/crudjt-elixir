@@ -146,6 +146,8 @@ defmodule CRUD_JT do
     {:error, Validation.error_message(Validation.error_encrypted_key_not_set())}
 
   def start(%Config{} = cfg) do
+    Validation.validate_encrypted_key!(cfg.encrypted_key)
+
     # виклик NIF, який має повернути JSON
     response = start_store_jt_config(cfg.encrypted_key, cfg.store_jt_path)
 

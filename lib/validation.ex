@@ -56,7 +56,7 @@ defmodule Validation do
   # Перевірка encrypted_key (base64 + довжина)
   def validate_encrypted_key!(key) do
     decoded =
-      case Base.decode64(key, ignore: false) do
+      case Base.decode64(key) do
         {:ok, bin} -> bin
         :error -> raise ArgumentError, "'encrypted_key' must be a valid Base64 string"
       end
