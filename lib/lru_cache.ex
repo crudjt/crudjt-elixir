@@ -1,4 +1,4 @@
-defmodule LRUCache do
+defmodule CRUD_JT_LRUCache do
   alias :persistent_term, as: PersistentTerm
   alias :ets, as: Ets
 

@@ -14,7 +14,6 @@ defmodule CRUD_JT do
     @enforce_keys [:encrypted_key]
     defstruct encrypted_key: nil, store_jt_path: nil
 
-    # Глобальний флаг was_started
     def was_started? do
       :persistent_term.get(__MODULE__, false)
     end
@@ -26,7 +25,6 @@ defmodule CRUD_JT do
 
   def start_store_jt_config(_encrypted_key, _store_jt_path), do: :erlang.nif_error(:nif_not_loaded)
 
-  # Проксі-функція для `__create`
   def __create(data_pointer, size, ttl, silence_read) do
     :erlang.nif_error(:nif_not_loaded)
   end
@@ -37,10 +35,10 @@ defmodule CRUD_JT do
 
   def create(hash, ttl \\ nil, silence_read \\ nil) do
     unless Config.was_started? do
-      raise Validation.error_message(Validation.error_not_started)
+      raise CRUD_JT_Validation.error_message(CRUD_JT_Validation.error_not_started)
     end
 
-    Validation.validate_insertion!(hash, ttl, silence_read)
+    CRUD_JT_Validation.validate_insertion!(hash, ttl, silence_read)
 
     ttl = ttl || -1
     silence_read = silence_read || -1
@@ -48,27 +46,25 @@ defmodule CRUD_JT do
     {:ok, packed} = Msgpax.pack(hash)
     bynary_data = IO.iodata_to_binary(packed)
     size = byte_size(bynary_data)
-    Validation.validate_hash_bytesize!(size)
+    CRUD_JT_Validation.validate_hash_bytesize!(size)
 
     token = __create(bynary_data, size, ttl, silence_read)
     unless token do
-      raise Errors.InternalError, message: "Something went wrong. Ups"
+      raise CRUD_JT_Errors.InternalError, message: "Something went wrong. Ups"
     end
 
-    #Cachex.put(:my_cache, token, hash)
-    #LRUCache.put(token, hash)
-    Cache.insert(token, hash, ttl, silence_read)
+    CRUD_JT_Cache.insert(token, hash, ttl, silence_read)
     token
   end
 
   def read(token) do
     unless Config.was_started? do
-      raise Validation.error_message(Validation.error_not_started())
+      raise CRUD_JT_Validation.error_message(CRUD_JT_Validation.error_not_started())
     end
 
-    Validation.validate_token!(token)
+    CRUD_JT_Validation.validate_token!(token)
 
-    case Cache.get(token, &__read/1) do
+    case CRUD_JT_Cache.get(token, &__read/1) do
       nil ->
         case __read(token) do
           nil ->
@@ -79,7 +75,7 @@ defmodule CRUD_JT do
 
             unless result["ok"] do
               error_module =
-                Map.get(Errors.errors, result["code"], Errors.InternalError)
+                Map.get(CRUD_JT_Errors.errors, result["code"], CRUD_JT_Errors.InternalError)
 
               raise error_module, message: result["error_message"] || "Unknown error"
             end
@@ -90,7 +86,7 @@ defmodule CRUD_JT do
 
               data_str ->
                 data = Jason.decode!(data_str)
-                Cache.force_insert(token, data)
+                CRUD_JT_Cache.force_insert(token, data)
                 data
             end
         end
@@ -100,14 +96,13 @@ defmodule CRUD_JT do
     end
   end
 
-
   def update(token, hash, ttl \\ nil, silence_read \\ nil) do
     unless Config.was_started? do
-      raise Validation.error_message(Validation.error_not_started)
+      raise CRUD_JT_Validation.error_message(CRUD_JT_Validation.error_not_started)
     end
 
-    Validation.validate_token!(token)
-    Validation.validate_insertion!(hash, ttl, silence_read)
+    CRUD_JT_Validation.validate_token!(token)
+    CRUD_JT_Validation.validate_insertion!(hash, ttl, silence_read)
 
     ttl = ttl || -1
     silence_read = silence_read || -1
@@ -115,23 +110,23 @@ defmodule CRUD_JT do
     {:ok, packed} = Msgpax.pack(hash)
     bynary_data = IO.iodata_to_binary(packed)
     size = byte_size(bynary_data)
-    Validation.validate_hash_bytesize!(size)
+    CRUD_JT_Validation.validate_hash_bytesize!(size)
 
     result = __update(token, bynary_data, size, ttl, silence_read)
     if result do
-      Cache.insert(token, hash, ttl, silence_read)
+      CRUD_JT_Cache.insert(token, hash, ttl, silence_read)
     end
     result
   end
 
   def delete(token) do
     unless Config.was_started? do
-      raise Validation.error_message(Validation.error_not_started)
+      raise CRUD_JT_Validation.error_message(CRUD_JT_Validation.error_not_started)
     end
 
-    Validation.validate_token!(token)
+    CRUD_JT_Validation.validate_token!(token)
 
-    Cache.delete(token)
+    CRUD_JT_Cache.delete(token)
     __delete(token)
   end
 
@@ -143,10 +138,10 @@ defmodule CRUD_JT do
 
   @spec start(Config.t()) :: {:ok, Config.t()} | {:error, String.t()}
   def start(%Config{encrypted_key: nil}), do:
-    {:error, Validation.error_message(Validation.error_encrypted_key_not_set())}
+    {:error, CRUD_JT_Validation.error_message(CRUD_JT_Validation.error_encrypted_key_not_set())}
 
   def start(%Config{} = cfg) do
-    Validation.validate_encrypted_key!(cfg.encrypted_key)
+    CRUD_JT_Validation.validate_encrypted_key!(cfg.encrypted_key)
 
     # виклик NIF, який має повернути JSON
     response = start_store_jt_config(cfg.encrypted_key, cfg.store_jt_path)
@@ -156,7 +151,7 @@ defmodule CRUD_JT do
         Config.set_started()
         {:ok, cfg}
       else
-        case Errors.errors()[res["code"]] do
+        case CRUD_JT_Errors.errors()[res["code"]] do
           nil ->
             raise "Unknown error code #{res["code"]}"
 

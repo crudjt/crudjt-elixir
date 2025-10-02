@@ -1,4 +1,4 @@
-defmodule Validation do
+defmodule CRUD_JT_Validation do
   @u64_max :math.pow(2, 64) - 1 |> trunc()
 
   @max_hash_size 256
@@ -46,14 +46,12 @@ defmodule Validation do
     end
   end
 
-  # Перевірка розміру хеша
   def validate_hash_bytesize!(hash_bytesize) when hash_bytesize > @max_hash_size do
     raise ArgumentError, "Hash can not be bigger than #{@max_hash_size} bytesize"
   end
 
   def validate_hash_bytesize!(_hash_bytesize), do: :ok
 
-  # Перевірка encrypted_key (base64 + довжина)
   def validate_encrypted_key!(key) do
     decoded =
       case Base.decode64(key) do
