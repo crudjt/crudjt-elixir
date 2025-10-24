@@ -1,6 +1,7 @@
 name: Build and Test Elixir Library
 
-on: [push, pull_request]
+on:
+  workflow_dispatch:
 
 jobs:
   build-and-test:
@@ -18,7 +19,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Set up Elixir (Ubuntu)
         if: ${{ matrix.os == 'ubuntu-latest' }}
         uses: erlef/setup-beam@v1
