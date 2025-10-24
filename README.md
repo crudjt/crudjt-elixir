@@ -155,14 +155,14 @@ CRUD_JT.delete("HBmKFXoXgJ46mCqer1WXyQ")
 # Performance
 **40k** requests of **256 bytes** — median over 10 runs  
 ARM64 (Apple M1+), macOS 15.5/15.6  
-Elixir 3.4.4
+Elixir 1.17.3 (Erlang/OTP 27)
 
-| Function | CRUD JT (Elixir) | JWT (Elixir) | redis-session-store (Elixir, Rails 8.0.4) |
+| Function | CRUD JT (Elixir) | JWT (Elixir) | redis-session-store (Ruby, Rails 8.0.4) |
 |----------|-------|------|------|
-| C        | `0.344 second` ![Logo Favicon Light](logos/crud_jt_logo_favicon_white.png#gh-light-mode-only) ![Logo Favicon Dark](logos/crud_jt_logo_favicon_black.png#gh-dark-mode-only) | 0.641 second | 4.057 seconds |
-| R        | `0.181 second` ![Logo Favicon Light](logos/crud_jt_logo_favicon_white.png#gh-light-mode-only) ![Logo Favicon Dark](logos/crud_jt_logo_favicon_black.png#gh-dark-mode-only) | 1.019 second | 7.011 seconds |
-| U        | `0.591 second` ![Logo Favicon Light](logos/crud_jt_logo_favicon_white.png#gh-light-mode-only) ![Logo Favicon Dark](logos/crud_jt_logo_favicon_black.png#gh-dark-mode-only) | X | 3.49 seconds |
-| D        | `0.282 second` ![Logo Favicon Light](logos/crud_jt_logo_favicon_white.png#gh-light-mode-only) ![Logo Favicon Dark](logos/crud_jt_logo_favicon_black.png#gh-dark-mode-only) | X | 6.589 seconds |
+| C        | 0.36 second | ⭐ 0.2965 second | 4.057 seconds |
+| R        | `0.038 second` ![Logo Favicon Light](logos/crud_jt_logo_favicon_white.png#gh-light-mode-only) ![Logo Favicon Dark](logos/crud_jt_logo_favicon_black.png#gh-dark-mode-only) | 0.3795 second | 7.011 seconds |
+| U        | `0.461 second` ![Logo Favicon Light](logos/crud_jt_logo_favicon_white.png#gh-light-mode-only) ![Logo Favicon Dark](logos/crud_jt_logo_favicon_black.png#gh-dark-mode-only) | X | 3.49 seconds |
+| D        | `0.232 second` ![Logo Favicon Light](logos/crud_jt_logo_favicon_white.png#gh-light-mode-only) ![Logo Favicon Dark](logos/crud_jt_logo_favicon_black.png#gh-dark-mode-only) | X | 6.589 seconds |
 
 [Full results](https://github.com/exwarvlad/benchmarks)
 
@@ -171,7 +171,7 @@ Elixir 3.4.4
 ## Path Lookup Order
 Stored tokens are placed in the **file system** according to the following order
 
-1. Explicitly set via `CRUD_JT::Config.store_jt_path('custom/path/to/file_system_db')`
+1. Explicitly set via `%CRUD_JT.Config{store_jt_path: "custom/path/to/file_system_db"}`
 2. Default system location
    - **Linux**: `/var/lib/store_jt`
    - **macOS**: `/usr/local/var/store_jt`
@@ -196,7 +196,7 @@ CRUD_JT.start(%CRUD_JT.Config{
 # Optional configuration
 CRUD_JT.start(%CRUD_JT.Config{
   encrypted_key: "your_encrypted_base64/32/48/64",
-  file_db_path: "/custom/path/to/store_jt"
+  store_jt_path: "/custom/path/to/store_jt"
 })
 ```
 
