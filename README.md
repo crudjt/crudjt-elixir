@@ -196,7 +196,7 @@ CRUD_JT.start(%CRUD_JT.Config{
 # Optional configuration
 CRUD_JT.start(%CRUD_JT.Config{
   encrypted_key: "your_encrypted_base64/32/48/64",
-  store_jt_path: "/custom/path/to/store_jt"
+  store_jt_path: "/custom/path/to/file_storage_db"
 })
 ```
 
