@@ -154,8 +154,8 @@ CRUD_JT.delete("HBmKFXoXgJ46mCqer1WXyQ")
 
 # Performance
 **40k** requests of **256 bytes** — median over 10 runs  
-ARM64 (Apple M1+), macOS 15.5/15.6  
-Elixir 1.17.3 (Erlang/OTP 27)
+ARM64 (Apple M1+), macOS 15.6.1  
+Elixir 1.18.4 (Erlang/OTP 27)
 
 | Function | CRUD JT (Elixir) | JWT (Elixir) | redis-session-store (Ruby, Rails 8.0.4) |
 |----------|-------|------|------|
