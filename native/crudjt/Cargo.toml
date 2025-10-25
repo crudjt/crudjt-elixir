@@ -1,11 +1,11 @@
 [package]
-name = "crud_jt"
+name = "crudjt"
 version = "1.0.0-beta.0"
 authors = []
 edition = "2021"
 
 [lib]
-name = "crud_jt"
+name = "crudjt"
 path = "src/lib.rs"
 crate-type = ["cdylib"]
 

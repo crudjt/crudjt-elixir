@@ -1,5 +1,5 @@
 defmodule CRUD_JT do
-  use Rustler, otp_app: :crud_jt, crate: "crud_jt"
+  use Rustler, otp_app: :crudjt, crate: "crudjt"
 
   # defmodule Config do
     # defstruct encrypted_key: nil, store_jt_path: nil

@@ -3,12 +3,12 @@ defmodule CRUD_JT.MixProject do
 
   def project do
     [
-      app: :crud_jt,
+      app: :crudjt,
       version: "1.0.0-beta.0",
       elixir: "~> 1.12",
       start_permanent: Mix.env() == :prod,
       compilers: [:rustler] ++ Mix.compilers(),
-      rustler_crates: [crud_jt: []],
+      rustler_crates: [crudjt: []],
       deps: deps(),
 
       description: description(),
@@ -19,7 +19,7 @@ defmodule CRUD_JT.MixProject do
 
   defp package do
     [
-      files: ["lib", "native", "priv", "mix.exs", "README*"],
+      files: ["lib", "native", "priv", "mix.exs", "README*", "NET_README_MARKDOWN*"],
       maintainers: ["Vlad Akymov"],
       licenses: ["MIT"],
       links: %{"GitHub" => "https://github.com/crud_jt/crud_jt-elixir"}
@@ -28,7 +28,7 @@ defmodule CRUD_JT.MixProject do
 
   defp description do
     """
-    Bla bla bla
+    Simplifies session. Login / Logout / Authorization
     """
   end
 

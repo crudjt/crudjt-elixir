@@ -17,7 +17,7 @@
 ```elixir
 def deps do
   [
-    {:crud_jt, "~> 1.0.0"}
+    {:crudjt, "~> 1.0.0"}
   ]
 end
 ```
@@ -228,7 +228,7 @@ The library has the following limits and requirements
 </p>
 
 - **Custom integrations / new features / collaboration**: support@crudjt.com  
-- **Library support & bug reports:** [open an issue](https://github.com/crud_jt/crud_jt-Elixir/issues)
+- **Library support & bug reports:** [open an issue](https://github.com/crudjt/crudjt-elixir/issues)
 
 
 # Lincense

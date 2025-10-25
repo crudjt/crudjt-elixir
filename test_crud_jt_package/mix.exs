@@ -21,7 +21,7 @@ defmodule TestCrudJtPackage.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:crud_jt, path: "../test_my_package"}
+      {:crudjt, path: "../test_my_package"}
     ]
   end
 end
