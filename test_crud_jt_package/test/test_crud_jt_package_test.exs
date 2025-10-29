@@ -1,7 +1,8 @@
 require Logger
 
 CRUD_JT.start(%CRUD_JT.Config{
-  encrypted_key: "Cm7B68NWsMNNYjzMDREacmpe5sI1o0g40ZC9w1yQW3WOes7Gm59UsittLOHR2dciYiwmaYq98l3tG8h9yXVCxg=="
+  encrypted_key: "Cm7B68NWsMNNYjzMDREacmpe5sI1o0g40ZC9w1yQW3WOes7Gm59UsittLOHR2dciYiwmaYq98l3tG8h9yXVCxg==",
+  cheatcode: CRUD_JT.Config.hint_cheatcode
 })
 
 IO.puts("OS: #{inspect(:os.type())}")
