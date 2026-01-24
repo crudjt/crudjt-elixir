@@ -1,7 +1,7 @@
 defmodule CRUD_JT_Errors do
   @errors %{
     "XX000" => Errors.InternalError,
-    "DE000" => Errors.DonateException
+    "55JT01" => Errors.InvalidState
   }
 
   def errors, do: @errors
