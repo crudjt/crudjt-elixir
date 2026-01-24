@@ -2,29 +2,90 @@ defmodule CRUD_JT do
   use Rustler, otp_app: :crudjt, crate: "crudjt"
 
   defmodule Config do
-    @cheatcode "BAGUVIX" # 🐰🥚
-    @chosen_cheatcode :chosen_cheatcode
+    @grpc_host "127.0.0.1"
+    @grpc_port 50051
 
-    @enforce_keys [:encrypted_key]
-    defstruct encrypted_key: nil, store_jt_path: nil, cheatcode: nil
+    @started {__MODULE__, :started}
+    @channel {__MODULE__, :channel}
+    @master  {__MODULE__, :master}
 
     def was_started? do
-      :persistent_term.get(__MODULE__, false)
+      :persistent_term.get(@started, false)
     end
 
     def set_started do
-      :persistent_term.put(__MODULE__, true)
+      :persistent_term.put(@started, true)
     end
 
-    def set_cheatcode(code) do
-      :persistent_term.put(@chosen_cheatcode, code)
+    def set_channel(channel) do
+      :persistent_term.put(@channel, channel)
     end
 
-    def chosen_cheatcode do
-      :persistent_term.get(@chosen_cheatcode, nil)
+    def channel do
+      :persistent_term.get(@channel, nil)
     end
 
-    def hint_cheatcode, do: @cheatcode
+    def set_master(value) do
+      :persistent_term.put(@master, value)
+    end
+
+    def master do
+      :persistent_term.get(@master, false)
+    end
+
+    def start_master(opts \\ []) do
+      if Config.was_started? do
+        raise CRUD_JT_Validation.error_message(CRUD_JT_Validation.error_already_started())
+      end
+
+      encrypted_key = Keyword.get(opts, :encrypted_key, nil)
+      store_jt_path = Keyword.get(opts, :store_jt_path, nil)
+      grpc_port = Keyword.get(opts, :grpc_port, @grpc_port)
+
+      CRUD_JT_Validation.validate_encrypted_key!(encrypted_key)
+
+      response = CRUD_JT.start_store_jt_config(encrypted_key, store_jt_path)
+
+      with {:ok, res} <- Jason.decode(response) do
+        if res["ok"] do
+          GRPC.Server.start(Token.TokenService.Server, grpc_port)
+
+          set_master(true)
+
+          Config.set_started
+
+          {:ok}
+        else
+          case CRUD_JT_Errors.errors()[res["code"]] do
+            nil ->
+              raise "Unknown error code #{res["code"]}"
+
+            err_mod ->
+              raise err_mod, message: res["error_message"]
+          end
+        end
+      else
+        _ -> {:error, "Invalid JSON response from start_master"}
+      end
+    end
+
+    def connect_to_master(opts \\ []) do
+      if Config.was_started? do
+        raise CRUD_JT_Validation.error_message(CRUD_JT_Validation.error_already_started())
+      end
+
+      grpc_host = Keyword.get(opts, :grpc_host, @grpc_host)
+      grpc_port = Keyword.get(opts, :grpc_port, @grpc_port)
+
+      {:ok, _sup} = DynamicSupervisor.start_link(strategy: :one_for_one, name: GRPC.Client.Supervisor)
+      {:ok, channel} = GRPC.Stub.connect("#{grpc_host}:#{grpc_port}")
+
+      set_channel(channel)
+      set_master(false)
+      set_started()
+
+      channel
+    end
   end
 
   def start_store_jt_config(_encrypted_key, _store_jt_path), do: :erlang.nif_error(:nif_not_loaded)
@@ -37,17 +98,10 @@ defmodule CRUD_JT do
   def __update(token, data, size, ttl, silence_read), do: :erlang.nif_error(:nif_not_loaded)
   def __delete(token), do: :erlang.nif_error(:nif_not_loaded)
 
-  def create(hash, ttl \\ nil, silence_read \\ nil) do
+  def original_create(hash, ttl \\ nil, silence_read \\ nil) do
     unless Config.was_started? do
       raise CRUD_JT_Validation.error_message(CRUD_JT_Validation.error_not_started)
     end
-
-    silence_read =
-      unless CRUD_JT.Config.hint_cheatcode == CRUD_JT.Config.chosen_cheatcode do
-        nil
-      else
-        silence_read
-      end
 
     CRUD_JT_Validation.validate_insertion!(hash, ttl, silence_read)
 
@@ -68,7 +122,31 @@ defmodule CRUD_JT do
     token
   end
 
-  def read(token) do
+  def create(hash, ttl \\ nil, silence_read \\ nil) do
+    if Config.master do
+      original_create(hash, ttl, silence_read)
+    else
+      # token_service.proto expect int64/32 values
+      # it sensative for nil and covert it to 0
+      ttl = ttl || -1
+      silence_read = silence_read || -1
+
+      {:ok, packed} = Msgpax.pack(hash)
+      packed_data = IO.iodata_to_binary(packed)
+      request =
+        %Token.CreateTokenRequest{
+          packed_data: packed_data,
+          ttl: ttl,
+          silence_read: silence_read
+        }
+
+      {:ok, response} = Token.TokenService.Stub.create_token(Config.channel, request)
+
+      response.token
+    end
+  end
+
+  def original_read(token) do
     unless Config.was_started? do
       raise CRUD_JT_Validation.error_message(CRUD_JT_Validation.error_not_started())
     end
@@ -107,17 +185,25 @@ defmodule CRUD_JT do
     end
   end
 
-  def update(token, hash, ttl \\ nil, silence_read \\ nil) do
+  def read(token) do
+    if Config.master do
+      original_read(token)
+    else
+      request =
+        %Token.ReadTokenRequest{
+          token: token
+        }
+
+      {:ok, response} = Token.TokenService.Stub.read_token(Config.channel, request)
+
+      Msgpax.unpack!(response.packed_data)
+    end
+  end
+
+  def original_update(token, hash, ttl \\ nil, silence_read \\ nil) do
     unless Config.was_started? do
       raise CRUD_JT_Validation.error_message(CRUD_JT_Validation.error_not_started)
     end
-
-    silence_read =
-      unless CRUD_JT.Config.hint_cheatcode == CRUD_JT.Config.chosen_cheatcode do
-        nil
-      else
-        silence_read
-      end
 
     CRUD_JT_Validation.validate_token!(token)
     CRUD_JT_Validation.validate_insertion!(hash, ttl, silence_read)
@@ -137,7 +223,32 @@ defmodule CRUD_JT do
     result
   end
 
-  def delete(token) do
+  def update(token, hash, ttl \\ nil, silence_read \\ nil) do
+    if Config.master do
+      original_update(token, hash, ttl, silence_read)
+    else
+      # token_service.proto expect int64/32 values
+      # it sensative for nil and covert it to 0
+      ttl = ttl || -1
+      silence_read = silence_read || -1
+
+      {:ok, packed} = Msgpax.pack(hash)
+      packed_data = IO.iodata_to_binary(packed)
+      request =
+        %Token.UpdateTokenRequest{
+          token: token,
+          packed_data: packed_data,
+          ttl: ttl,
+          silence_read: silence_read
+        }
+
+      {:ok, response} = Token.TokenService.Stub.update_token(Config.channel, request)
+
+      response.result
+    end
+  end
+
+  def original_delete(token) do
     unless Config.was_started? do
       raise CRUD_JT_Validation.error_message(CRUD_JT_Validation.error_not_started)
     end
@@ -148,40 +259,20 @@ defmodule CRUD_JT do
     __delete(token)
   end
 
-  @spec start(Config.t()) :: {:ok, Config.t()} | {:error, String.t()}
-  def start(%Config{encrypted_key: nil}), do:
-    {:error, CRUD_JT_Validation.error_message(CRUD_JT_Validation.error_encrypted_key_not_set())}
-
-  def start(%Config{} = cfg) do
-    CRUD_JT_Validation.validate_encrypted_key!(cfg.encrypted_key)
-
-    response = start_store_jt_config(cfg.encrypted_key, cfg.store_jt_path)
-
-    with {:ok, res} <- Jason.decode(response) do
-      if res["ok"] do
-        Config.set_started()
-        Config.set_cheatcode(cfg.cheatcode)
-
-        if CRUD_JT.Config.hint_cheatcode == CRUD_JT.Config.chosen_cheatcode do
-          IO.puts("""
-          🐰🥚 You have activated optional param :silence_read for CRUD_JT on method create
-          Ideal for one-time reads, email confirmation links, or limits on the number of operations
-          Each read decrements :silence_read by 1, when the counter reaches zero — the token is deleted permanently
-          """)
-        end
-
-        {:ok, cfg}
-      else
-        case CRUD_JT_Errors.errors()[res["code"]] do
-          nil ->
-            raise "Unknown error code #{res["code"]}"
-
-          err_mod ->
-            raise err_mod, message: res["error_message"]
-        end
-      end
+  def delete(token) do
+    if Config.master do
+      original_delete(token)
     else
-      _ -> {:error, "Invalid JSON response from start_store_jt_config"}
+      request =
+        %Token.DeleteTokenRequest{
+          token: token
+        }
+
+      {:ok, response} = Token.TokenService.Stub.delete_token(Config.channel, request)
+
+      response.result
     end
   end
+
+
 end

@@ -43,6 +43,8 @@ defmodule CRUD_JT.MixProject do
     [
       {:rustler, "~> 0.29.0"},
       {:msgpax, "~> 2.4.0"},
+      {:grpc, "~> 0.9"},
+      {:protobuf, "~> 0.12"}
     ]
   end
 end
