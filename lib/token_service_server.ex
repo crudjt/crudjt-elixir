@@ -11,7 +11,7 @@ defmodule Token.TokenService.Server do
     silence_read = normalize_optional_int(request.silence_read)
 
     token =
-      CRUD_JT.original_create(
+      CRUDJT.original_create(
         hash,
         ttl,
         silence_read
@@ -25,7 +25,7 @@ defmodule Token.TokenService.Server do
     raw_token = request.token
 
     result_hash =
-      CRUD_JT.original_read(raw_token)
+      CRUDJT.original_read(raw_token)
 
     {:ok, packed} = Msgpax.pack(result_hash)
     packed_data = IO.iodata_to_binary(packed)
@@ -45,7 +45,7 @@ defmodule Token.TokenService.Server do
     silence_read = normalize_optional_int(request.silence_read)
 
     result =
-      CRUD_JT.original_update(
+      CRUDJT.original_update(
         raw_token,
         packed_data,
         ttl,
@@ -60,7 +60,7 @@ defmodule Token.TokenService.Server do
     raw_token = request.token
 
     result =
-      CRUD_JT.original_delete(raw_token)
+      CRUDJT.original_delete(raw_token)
 
     %Token.DeleteTokenResponse{result: result}
   end

@@ -201,4 +201,4 @@ fn __delete(token: String) -> NifResult<bool> {
     Ok(bool)
 }
 
-rustler::init!("Elixir.CRUD_JT", [start_store_jt_config, __create, __read, __update, __delete]);
+rustler::init!("Elixir.CRUDJT", [start_store_jt_config, __create, __read, __update, __delete]);

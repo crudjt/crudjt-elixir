@@ -1,4 +1,4 @@
-defmodule CRUD_JT_Validation do
+defmodule CRUDJT_Validation do
   @u64_max :math.pow(2, 64) - 1 |> trunc()
 
   @max_hash_size 256
@@ -12,8 +12,8 @@ defmodule CRUD_JT_Validation do
   def error_encrypted_key_not_set, do: @error_encrypted_key_not_set
 
   @error_messages %{
-    @error_already_started => "CRUD_JT already started",
-    @error_not_started => "CRUD_JT has not started",
+    @error_already_started => "CRUDJT already started",
+    @error_not_started => "CRUDJT has not started",
     @error_encrypted_key_not_set => "encrypted_key is blank"
   }
 

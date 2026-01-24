@@ -1,12 +1,12 @@
-defmodule CRUD_JT.Application do
+defmodule CRUDJT.Application do
   use Application
 
   def start(_type, _args) do
     children = []
 
-    CRUD_JT_LRUCache.init_(40_000)
+    CRUDJT_LRUCache.init_(40_000)
 
-    opts = [strategy: :one_for_one, name: CRUD_JT.Supervisor]
+    opts = [strategy: :one_for_one, name: CRUDJT.Supervisor]
     Supervisor.start_link(children, opts)
   end
 end

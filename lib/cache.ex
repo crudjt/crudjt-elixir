@@ -1,6 +1,6 @@
-defmodule CRUD_JT_Cache do
+defmodule CRUDJT_Cache do
   def get(key, read_func) do
-    case CRUD_JT_LRUCache.get(key) do
+    case CRUDJT_LRUCache.get(key) do
       -1 -> nil
       cached_token -> process_cached_token(key, cached_token, read_func, %{})
     end
@@ -25,15 +25,15 @@ defmodule CRUD_JT_Cache do
         hash
       end
 
-    CRUD_JT_LRUCache.put(key, hash)
+    CRUDJT_LRUCache.put(key, hash)
   end
 
   def delete(key) do
-    CRUD_JT_LRUCache.del(key)
+    CRUDJT_LRUCache.del(key)
   end
 
   def force_insert(key, hash) do
-    CRUD_JT_LRUCache.put(key, hash)
+    CRUDJT_LRUCache.put(key, hash)
   end
 
   defp process_cached_token(key, cached_token, read_func, output) do
@@ -46,7 +46,7 @@ defmodule CRUD_JT_Cache do
         ttl ->
           time_diff = ttl - current_time
           if time_diff <= 0 do
-            CRUD_JT_LRUCache.del(key)
+            CRUDJT_LRUCache.del(key)
             :was_deleted
           else
             Map.put(metadata, "ttl", time_diff)
@@ -62,16 +62,16 @@ defmodule CRUD_JT_Cache do
           silence_read ->
             updated_silence_read = silence_read - 1
             if updated_silence_read <= 0 do
-              CRUD_JT_LRUCache.del(key)
+              CRUDJT_LRUCache.del(key)
               :was_deleted
             else
               read_func.(key)
               updated_metadata = Map.put(metadata, "silence_read", updated_silence_read)
 
-              cached_metadata = CRUD_JT_LRUCache.get(key)["metadata"]
+              cached_metadata = CRUDJT_LRUCache.get(key)["metadata"]
               cached_metadata = Map.put(cached_metadata, "silence_read", updated_silence_read)
 
-              CRUD_JT_LRUCache.put(key, Map.put(cached_token, "metadata", cached_metadata))
+              CRUDJT_LRUCache.put(key, Map.put(cached_token, "metadata", cached_metadata))
 
               updated_metadata
             end

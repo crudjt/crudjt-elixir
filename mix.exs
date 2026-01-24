@@ -1,4 +1,4 @@
-defmodule CRUD_JT.MixProject do
+defmodule CRUDJT.MixProject do
   use Mix.Project
 
   def project do
@@ -22,7 +22,7 @@ defmodule CRUD_JT.MixProject do
       files: ["lib", "native", "priv", "mix.exs", "README*", "NET_README_MARKDOWN*"],
       maintainers: ["Vlad Akymov"],
       licenses: ["MIT"],
-      links: %{"GitHub" => "https://github.com/crud_jt/crud_jt-elixir"}
+      links: %{"GitHub" => "https://github.com/CRUDJT/CRUDJT-elixir"}
     ]
   end
 
@@ -35,7 +35,7 @@ defmodule CRUD_JT.MixProject do
   def application do
     [
       extra_applications: [:logger],
-      mod: {CRUD_JT.Application, []}
+      mod: {CRUDJT.Application, []}
     ]
   end
 

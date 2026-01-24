@@ -1,4 +1,4 @@
-defmodule CRUD_JT_Errors do
+defmodule CRUDJT_Errors do
   @errors %{
     "XX000" => Errors.InternalError,
     "55JT01" => Errors.InvalidState
