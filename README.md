@@ -102,11 +102,11 @@ token = CRUDJT.create(data, ttl, silence_read)
 ```elixir
 data = %{"user_id" => 42, "role" => 11}
 
-# To disable token expiration or read limits, pass `-1`
+# To disable token expiration or read limits, pass `nil`
 token = CRUDJT.create(
   data,
-  -1, # disable TTL
-  -1 # disable read limit
+  nil, # disable TTL
+  nil # disable read limit
 )
 ```
 
@@ -128,13 +128,17 @@ result = CRUDJT.read("HBmKFXoXgJ46mCqer1WXyQ")
 ```elixir
 data = %{"user_id" => 42, "role" => 8}
 
+# `nil` disables limits
+ttl = 600
+silence_reaad = 100
+
 result = CRUDJT.update("HBmKFXoXgJ46mCqer1WXyQ", data, ttl, silence_read)
 # result == true
 ```
 
 ```elixir
 # When expired or not found token
-result = CRUDJT.update("HBmKFXoXgJ46mCqer1WXyQ", data, ttl, silence_read)
+result = CRUDJT.update("HBmKFXoXgJ46mCqer1WXyQ", %{"user_id" => 42, "role" => 8})
 # result == false
 ```
 
