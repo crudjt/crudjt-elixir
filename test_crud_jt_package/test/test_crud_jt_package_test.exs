@@ -4,6 +4,8 @@ CRUDJT.Config.start_master(
   encrypted_key: "Cm7B68NWsMNNYjzMDREacmpe5sI1o0g40ZC9w1yQW3WOes7Gm59UsittLOHR2dciYiwmaYq98l3tG8h9yXVCxg=="
 )
 
+CRUDJT.connect_to_master
+
 IO.puts("OS: #{inspect(:os.type())}")
 
 arch = :erlang.system_info(:system_architecture) |> to_string()

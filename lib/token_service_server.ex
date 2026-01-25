@@ -7,8 +7,10 @@ defmodule Token.TokenService.Server do
       request.packed_data
       |> Msgpax.unpack!()
 
-    ttl = normalize_optional_int(request.ttl)
-    silence_read = normalize_optional_int(request.silence_read)
+    # token_service.proto expect int64/32 values
+    # it sensative for nil and covert it to 0
+    ttl = if request.ttl == -1, do: nil, else: request.ttl
+    silence_read = if request.silence_read == -1, do: nil, else: request.silence_read
 
     token =
       CRUDJT.original_create(
@@ -41,8 +43,10 @@ defmodule Token.TokenService.Server do
       request.packed_data
       |> Msgpax.unpack!()
 
-    ttl = normalize_optional_int(request.ttl)
-    silence_read = normalize_optional_int(request.silence_read)
+    # token_service.proto expect int64/32 values
+    # it sensative for nil and covert it to 0
+    ttl = if request.ttl == -1, do: nil, else: request.ttl
+    silence_read = if request.silence_read == -1, do: nil, else: request.silence_read
 
     result =
       CRUDJT.original_update(
@@ -64,9 +68,4 @@ defmodule Token.TokenService.Server do
 
     %Token.DeleteTokenResponse{result: result}
   end
-
-  # --- helpers ---
-
-  defp normalize_optional_int(-1), do: nil
-  defp normalize_optional_int(value), do: value
 end

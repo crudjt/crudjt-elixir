@@ -127,9 +127,10 @@ defmodule CRUDJT do
       original_create(hash, ttl, silence_read)
     else
       # token_service.proto expect int64/32 values
-      # it sensative for nil and covert it to 0
-      ttl = ttl || -1
-      silence_read = silence_read || -1
+      # it sensative for nil and convert it to 0
+      # here -1 connverts to 0 for success work CRUDJT_Validation.validate_insertion!
+      ttl = normalize(ttl)
+      silence_read = normalize(silence_read)
 
       {:ok, packed} = Msgpax.pack(hash)
       packed_data = IO.iodata_to_binary(packed)
@@ -228,9 +229,10 @@ defmodule CRUDJT do
       original_update(token, hash, ttl, silence_read)
     else
       # token_service.proto expect int64/32 values
-      # it sensative for nil and covert it to 0
-      ttl = ttl || -1
-      silence_read = silence_read || -1
+      # it sensative for nil and convert it to 0
+      # here -1 connverts to 0 for success work CRUDJT_Validation.validate_insertion!
+      ttl = normalize(ttl)
+      silence_read = normalize(silence_read)
 
       {:ok, packed} = Msgpax.pack(hash)
       packed_data = IO.iodata_to_binary(packed)
@@ -274,5 +276,7 @@ defmodule CRUDJT do
     end
   end
 
-
+  def normalize(nil), do: -1
+  def normalize(-1), do: 0
+  def normalize(another_value), do: another_value
 end
