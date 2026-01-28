@@ -48,6 +48,7 @@ defmodule CRUDJT do
 
       with {:ok, res} <- Jason.decode(response) do
         if res["ok"] do
+          CRUDJT_LRUCache.init_(40_000)
           GRPC.Server.start(Token.TokenService.Server, grpc_port)
 
           set_master(true)
