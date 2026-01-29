@@ -2,9 +2,9 @@ defmodule CRUDJT_LRUCache do
   alias :persistent_term, as: PersistentTerm
   alias :ets, as: Ets
 
-  @capacity_key {__MODULE__, :capacity}
-  @cache_table __MODULE__
-  @ttl_table :"#{__MODULE__}TTL"
+  @capacity_key {:crudjt_lru_cache, :capacity}
+  @cache_table :crudjt_lru_cache
+  @ttl_table :crudjt_lru_cache_ttl
 
   @spec init_(capacity :: integer) :: any
   def init_(capacity) do
