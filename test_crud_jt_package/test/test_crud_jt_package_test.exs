@@ -1,5 +1,10 @@
 require Logger
 
+if System.get_env("CRUDJT_AUTOTEST_ALLOWED") != "true" do
+  IO.puts("Denied run autotest for this environment. Set ENV['CRUDJT_AUTOTEST_ALLOWED'] = 'true'")
+  System.halt(1)
+end
+
 CRUDJT.Config.start_master(
   encrypted_key: "Cm7B68NWsMNNYjzMDREacmpe5sI1o0g40ZC9w1yQW3WOes7Gm59UsittLOHR2dciYiwmaYq98l3tG8h9yXVCxg=="
 )

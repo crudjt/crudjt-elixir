@@ -50,6 +50,8 @@ jobs:
         run: mix hex.build -o test_my_package --unpack
 
       - name: Run tests
+        env:
+          CRUDJT_AUTOTEST_ALLOWED: true
         working-directory: ./test_crud_jt_package
         run: |
           mix deps.get
