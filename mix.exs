@@ -13,22 +13,24 @@ defmodule CRUDJT.MixProject do
 
       description: description(),
       package: package(),
-      docs: [main: "CRUD JT", extras: ["NET_README_MARKDOWN.md"]]
+      docs: [main: "README.md", extras: ["README.md"]],
+      source_url: "https://github.com/crudjt/crudjt-elixir",
+      homepage_url: "https://github.com/crudjt/crudjt-elixir"
     ]
   end
 
   defp package do
     [
-      files: ["lib", "native", "priv", "mix.exs", "README*", "NET_README_MARKDOWN*"],
-      maintainers: ["Vlad Akymov"],
+      files: ["lib", "native", "priv", "mix.exs", "README*", "LICENSE*"],
+      maintainers: ["Vlad Akymov (v_akymov)"],
       licenses: ["MIT"],
-      links: %{"GitHub" => "https://github.com/CRUDJT/CRUDJT-elixir"}
+      links: %{"GitHub" => "https://github.com/crudjt/crudjt-elixir"}
     ]
   end
 
   defp description do
     """
-    Simplifies session. Login / Logout / Authorization
+    Fast B-tree–backed token store for stateful sessions
     """
   end
 
