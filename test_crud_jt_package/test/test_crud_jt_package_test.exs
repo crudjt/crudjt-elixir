@@ -107,7 +107,7 @@ IO.puts("Checking scale load...")
 for i <- 1..10 do
   list = []
 
-  IO.puts("when creates 40k tokens with Turbo Queue")
+  IO.puts("when creates 40k tokens")
   {time, list} = :timer.tc(fn ->
     Enum.reduce(1..requests, [], fn _, acc ->
       [CRUDJT.create(data) | acc]
