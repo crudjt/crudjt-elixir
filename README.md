@@ -38,17 +38,20 @@ end
 
 ## Start CRUDJT master (once)
 
-Start the CRUDJT master when your application boots  
+Start the CRUDJT master when your application boots
 
-Only **one process** should do this  
-The master is responsible for session state and coordination  
+Only **one process** can do this for a **single token storage**  
 
-### Generate a new secret key
+The master process manages sessions and coordination    
+All functions can also be used directly from it
+
+### Generate a new secret key (terminal)
 
 ```sh
 export CRUDJT_SECRET_KEY=$(openssl rand -base64 48)
 ```
 
+### Start master (elixir)
 ```elixir
 CRUDJT.Config.start_master(
   secret_key: System.fetch_env!("CRUDJT_SECRET_KEY"),
@@ -98,11 +101,9 @@ token = CRUDJT.create(data, ttl, silence_read)
 ```
 
 ```elixir
-data = %{"user_id" => 42, "role" => 11}
-
 # To disable token expiration or read limits, pass `nil`
 token = CRUDJT.create(
-  data,
+  %{"user_id" => 42, "role" => 11},
   nil, # disable TTL
   nil # disable read limit
 )
@@ -125,7 +126,6 @@ result = CRUDJT.read("HBmKFXoXgJ46mCqer1WXyQ")
 
 ```elixir
 data = %{"user_id" => 42, "role" => 8}
-
 # `nil` disables limits
 ttl = 600
 silence_reaad = 100
