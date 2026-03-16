@@ -5,19 +5,18 @@ defmodule CRUDJT_Validation do
 
   @error_already_started 0
   @error_not_started 1
-  @error_encrypted_key_not_set 2
+  @error_secret_key_not_set 2
 
   def error_already_started, do: @error_already_started
   def error_not_started, do: @error_not_started
-  def error_encrypted_key_not_set, do: @error_encrypted_key_not_set
+  def error_secret_key_not_set, do: @error_secret_key_not_set
 
   @error_messages %{
     @error_already_started => "CRUDJT already started",
     @error_not_started => "CRUDJT has not started",
-    @error_encrypted_key_not_set => "encrypted_key is blank"
+    @error_secret_key_not_set => "Secret key is blank"
   }
 
-  # Повертає повідомлення по коду
   def error_message(code) do
     Map.get(@error_messages, code, "Unknown error (#{code})")
   end
@@ -52,16 +51,16 @@ defmodule CRUDJT_Validation do
 
   def validate_hash_bytesize!(_hash_bytesize), do: :ok
 
-  def validate_encrypted_key!(key) do
+  def validate_secret_key!(key) do
     decoded =
       case Base.decode64(key) do
         {:ok, bin} -> bin
-        :error -> raise ArgumentError, "'encrypted_key' must be a valid Base64 string"
+        :error -> raise ArgumentError, "'secret_key' must be a valid Base64 string"
       end
 
     unless byte_size(decoded) in [32, 48, 64] do
       raise ArgumentError,
-            "'encrypted_key' must be exactly 32, 48, or 64 bytes. Got #{byte_size(decoded)} bytes"
+            "'secret_key' must be exactly 32, 48, or 64 bytes. Got #{byte_size(decoded)} bytes"
     end
 
     :ok

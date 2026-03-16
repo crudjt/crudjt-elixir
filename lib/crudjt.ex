@@ -38,13 +38,13 @@ defmodule CRUDJT do
         raise CRUDJT_Validation.error_message(CRUDJT_Validation.error_already_started())
       end
 
-      encrypted_key = Keyword.get(opts, :encrypted_key, nil)
+      secret_key = Keyword.get(opts, :secret_key, nil)
       store_jt_path = Keyword.get(opts, :store_jt_path, nil)
       grpc_port = Keyword.get(opts, :grpc_port, @grpc_port)
 
-      CRUDJT_Validation.validate_encrypted_key!(encrypted_key)
+      CRUDJT_Validation.validate_secret_key!(secret_key)
 
-      response = CRUDJT.start_store_jt_config(encrypted_key, store_jt_path)
+      response = CRUDJT.start_store_jt_config(secret_key, store_jt_path)
 
       with {:ok, res} <- Jason.decode(response) do
         if res["ok"] do
@@ -89,7 +89,7 @@ defmodule CRUDJT do
     end
   end
 
-  def start_store_jt_config(_encrypted_key, _store_jt_path), do: :erlang.nif_error(:nif_not_loaded)
+  def start_store_jt_config(_secret_key, _store_jt_path), do: :erlang.nif_error(:nif_not_loaded)
 
   def __create(data_pointer, size, ttl, silence_read) do
     :erlang.nif_error(:nif_not_loaded)
