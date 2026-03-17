@@ -40,7 +40,6 @@ defmodule CRUDJT do
 
       secret_key = Keyword.get(opts, :secret_key, nil)
       store_jt_path = Keyword.get(opts, :store_jt_path, nil)
-      grpc_port = Keyword.get(opts, :grpc_port, @grpc_port)
 
       CRUDJT_Validation.validate_secret_key!(secret_key)
 
@@ -49,7 +48,17 @@ defmodule CRUDJT do
       with {:ok, res} <- Jason.decode(response) do
         if res["ok"] do
           CRUDJT_LRUCache.init_(40_000)
-          GRPC.Server.start(Token.TokenService.Server, grpc_port)
+
+          grpc_host = Keyword.get(opts, :grpc_host, @grpc_host)
+          grpc_port = Keyword.get(opts, :grpc_port, @grpc_port)
+
+          {:ok, ip} = :inet.parse_address(String.to_charlist(grpc_host))
+
+          GRPC.Server.start(
+            Token.TokenService.Server,
+            grpc_port,
+            adapter_opts: [ip: ip]
+          )
 
           set_master(true)
 

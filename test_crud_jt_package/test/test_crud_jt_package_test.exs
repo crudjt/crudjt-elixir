@@ -6,7 +6,9 @@ if System.get_env("CRUDJT_AUTOTEST_ALLOWED") != "true" do
 end
 
 CRUDJT.Config.start_master(
-  secret_key: "Cm7B68NWsMNNYjzMDREacmpe5sI1o0g40ZC9w1yQW3WOes7Gm59UsittLOHR2dciYiwmaYq98l3tG8h9yXVCxg=="
+  secret_key: "Cm7B68NWsMNNYjzMDREacmpe5sI1o0g40ZC9w1yQW3WOes7Gm59UsittLOHR2dciYiwmaYq98l3tG8h9yXVCxg==",
+  grpc_host: "127.0.0.1",
+  grpc_port: 50051
 )
 
 IO.puts("OS: #{inspect(:os.type())}")
