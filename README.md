@@ -56,6 +56,7 @@ export CRUDJT_SECRET_KEY=$(openssl rand -base64 48)
 CRUDJT.Config.start_master(
   secret_key: System.fetch_env!("CRUDJT_SECRET_KEY"),
   store_jt_path: "path/to/local/storage", # optional
+  grpc_host: "127.0.0.1", # default
   grpc_port: 50051 # default
 )
 ```
