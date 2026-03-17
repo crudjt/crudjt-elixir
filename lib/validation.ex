@@ -1,3 +1,7 @@
+# This binding was generated automatically to ensure consistency across languages
+# Generated using ChatGPT (GPT-5) from the canonical Ruby SDK
+# API is stable and production-ready
+
 defmodule CRUDJT_Validation do
   @u64_max :math.pow(2, 64) - 1 |> trunc()
 
