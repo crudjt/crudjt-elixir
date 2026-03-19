@@ -46,7 +46,8 @@ defmodule CRUDJT.MixProject do
       {:rustler, "~> 0.29.0"},
       {:msgpax, "~> 2.4.0"},
       {:grpc, "~> 0.9"},
-      {:protobuf, "~> 0.12"}
+      {:protobuf, "~> 0.12"},
+      {:ex_doc, ">= 0.0.0", only: :dev, runtime: false}
     ]
   end
 end
