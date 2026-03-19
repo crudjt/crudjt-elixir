@@ -21,7 +21,7 @@ defmodule CRUDJT.MixProject do
 
   defp package do
     [
-      files: ["lib", "native", "priv", "mix.exs", "README*", "LICENSE*"],
+      files: ["lib", "native", "logos", "priv", "mix.exs", "README*", "LICENSE*"],
       maintainers: ["Vlad Akymov (v_akymov)"],
       licenses: ["MIT"],
       links: %{"GitHub" => "https://github.com/crudjt/crudjt-elixir"}
