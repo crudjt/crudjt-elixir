@@ -46,9 +46,6 @@ jobs:
           mix local.hex --force
           mix local.rebar --force
 
-      - name: Install dependencies
-        run: mix hex.build -o test_my_package --unpack
-
       - name: Run tests
         env:
           CRUDJT_AUTOTEST_ALLOWED: true
