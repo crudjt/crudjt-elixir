@@ -195,9 +195,9 @@ In-process benchmark; Redis accessed via localhost TCP
 | U        | `0.382 second` | X | 2.124 seconds |
 | D        | `0.192 second` | X | 3.984 seconds |
 
-[Full benchmark results](https://github.com/crudjt/benchmarks)
-
 *Benchmarks shown here are from a previous version of CRUDJT. For current performance metrics, see the [GitHub repository](https://github.com/crudjt/crudjt-elixir)*
+
+[Full benchmark results](https://github.com/crudjt/benchmarks)
 
 # Storage (File-backed)  
 
@@ -240,7 +240,7 @@ The library has the following limits and requirements
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/crudjt/crudjt/refs/heads/master/logos/crudjt_favicon_160x160_white_on_dark.svg" width=160 height=160>
     <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/crudjt/crudjt/refs/heads/master/logos/crudjt_favicon_160x160_dark_on_white.svg" width=160 height=160>
-    <img alt="Shows a dark favicon in light color mode and a white one in dark color mode" src="https://raw.githubusercontent.com/crudjt/crudjt/refs/heads/master/logos/crudjt_favicon_160x160_white.png" width=160 height=160>
+    <img alt="Shows a dark favicon in light color mode and a white one in dark color mode" src="https://raw.githubusercontent.com/crudjt/crudjt/refs/heads/master/logos/crudjt_favicon_160x160_dark_on_white.svg" width=160 height=160>
   </picture>
 </p>
 
