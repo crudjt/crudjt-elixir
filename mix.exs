@@ -4,7 +4,7 @@ defmodule CRUDJT.MixProject do
   def project do
     [
       app: :crudjt,
-      version: "1.0.0-beta.4",
+      version: "1.0.0",
       elixir: "~> 1.12",
       start_permanent: Mix.env() == :prod,
       compilers: [:rustler] ++ Mix.compilers(),
